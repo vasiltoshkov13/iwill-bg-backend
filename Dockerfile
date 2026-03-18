@@ -12,4 +12,4 @@ RUN cd /app/.medusa/server && npm install --legacy-peer-deps --production
 
 EXPOSE 9000
 # Copy compiled config where CLI expects it, run migrate, then start pre-built server
-CMD ["sh", "-c", "cp /app/.medusa/server/medusa-config.js /app/medusa-config.js && npx medusa db:migrate && node /app/.medusa/server/index.js"]
+CMD ["sh", "-c", "cp /app/.medusa/server/medusa-config.js /app/medusa-config.js && npx medusa db:migrate && npx medusa start"]
