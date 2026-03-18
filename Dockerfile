@@ -10,6 +10,8 @@ COPY . .
 # Install deps for the pre-built compiled server
 RUN cd /app/.medusa/server && npm install --legacy-peer-deps --production
 
+# Copy admin to where medusa start expects it (rootDir/public/admin)
+RUN mkdir -p /app/public && cp -r /app/.medusa/server/public/admin /app/public/admin
+
 EXPOSE 9000
-# Copy compiled config where CLI expects it, run migrate, then start pre-built server
 CMD ["sh", "-c", "cp /app/.medusa/server/medusa-config.js /app/medusa-config.js && npx medusa db:migrate && npx medusa start"]
