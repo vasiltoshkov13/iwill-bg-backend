@@ -1,23 +1,11 @@
-FROM node:20-alpine AS builder
-WORKDIR /app
-
-# Install dependencies
-COPY package.json yarn.lock* package-lock.json* ./
-RUN npm install --legacy-peer-deps
-
-# Copy source and build (give Vite enough heap for admin bundle)
-COPY . .
-RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
-
-# Runtime image
 FROM node:20-alpine
 WORKDIR /app
 
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/.medusa ./.medusa
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/medusa-config.ts ./medusa-config.ts
-COPY --from=builder /app/src ./src
+COPY package.json yarn.lock* package-lock.json* ./
+RUN npm install --legacy-peer-deps
+
+COPY . .
 
 EXPOSE 9000
-CMD ["sh", "-c", "npx medusa db:migrate && npx medusa start"]
+# Build admin at startup so it has full container memory (avoids Railway build OOM)
+CMD ["sh", "-c", "NODE_OPTIONS='--max-old-space-size=4096' npm run build && npx medusa db:migrate && npx medusa start"]
